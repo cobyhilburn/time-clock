@@ -10,8 +10,6 @@ function App() {
     data ? setHours(data) : setHours([]);
   }, []);
 
-  console.log(hours);
-
   const handleClockIn = () => {
     const date = new Date();
     const clockInTime = date.toLocaleTimeString("en-US", {
@@ -22,11 +20,23 @@ function App() {
 
     let formattedDate = date.toLocaleDateString();
 
+    const day = date.getDay();
+    const daysOfWeek = {
+      0: "Sunday",
+      1: "Monday",
+      2: "Tuesday",
+      3: "Wednesday",
+      4: "Thursday",
+      5: "Friday",
+      6: "Saturday",
+    };
+    const dayOfWeek = daysOfWeek[day];
     const newHour = {
       clockInTime,
       clockOutTime: "",
       date: formattedDate,
       totalHours: "",
+      day: dayOfWeek,
     };
 
     let hoursArray = JSON.parse(localStorage.getItem("hours")) || [];
@@ -89,6 +99,7 @@ function App() {
         </button>
         {hours.map((hour, index) => (
           <div className="flex justify-between items-center gap-5" key={index}>
+            <p>{hour.day}</p>
             <p>{hour.date}</p>
             <p>{hour.clockInTime}</p>
             <p>{hour.clockOutTime ? hour.clockOutTime : "N/A"}</p>

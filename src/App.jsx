@@ -1,15 +1,47 @@
 import { useState, useEffect } from "react";
 import "./App.css";
-import { handleClockIn, handleClockOut, handleDelete } from "./Funcs";
+import {
+  handleClockIn,
+  handleClockOut,
+  handleDelete,
+  getTotalHours,
+} from "./Funcs";
 
 function App() {
   const [hours, setHours] = useState([]);
+  const [formattedDate, setFormattedDate] = useState(null);
 
   useEffect(() => {
-    const data = JSON.parse(localStorage.getItem("hours"));
+    const fetchData = async () => {
+      const data = JSON.parse(localStorage.getItem("hours"));
 
-    data ? setHours(data) : setHours([]);
+      if (data) {
+        setHours(data);
+
+        if (data[0]) {
+          const getMondayDate = new Date(data[0].date);
+          const fiveDaysAfter = new Date(getMondayDate);
+          fiveDaysAfter.setDate(getMondayDate.getDate() + 5);
+
+          setFormattedDate(fiveDaysAfter.toLocaleDateString());
+        }
+      } else {
+        setHours([]);
+      }
+    };
+
+    fetchData();
   }, []);
+
+  // Update the formatted date whenever 'hours' changes
+  useEffect(() => {
+    if (hours[0]) {
+      const getMondayDate = new Date(hours[0].date);
+      const fiveDaysAfter = new Date(getMondayDate);
+      fiveDaysAfter.setDate(getMondayDate.getDate() + 5);
+      setFormattedDate(fiveDaysAfter.toLocaleDateString());
+    }
+  }, [hours]);
 
   return (
     <div className="container mx-auto h-100">
@@ -21,13 +53,23 @@ function App() {
         >
           Clock in{" "}
         </button>
+        {hours[0] && formattedDate && (
+          <h2 className="text-left w-full">
+            Week of {hours[0].date} - {formattedDate}
+          </h2>
+        )}
         {hours.map((hour, index) => (
-          <div className="flex justify-between items-center gap-5" key={index}>
-            <p>{hour.day}</p>
+          <div
+            className="grid w-full grid-cols-7 text-center items-center gap-2"
+            key={index}
+          >
+            <p className="text-left">{hour.day}</p>
             <p>{hour.date}</p>
             <p>{hour.clockInTime}</p>
             <p>{hour.clockOutTime ? hour.clockOutTime : null}</p>
-            <p>{hour.totalHours ? hour.totalHours : "N/A"}</p>
+            <p className="col-span-2">
+              {hour.totalHours ? hour.totalHours : "N/A"}
+            </p>
             {hour.clockOutTime ? (
               <button
                 onClick={() => handleDelete(setHours, hours, index)}
@@ -45,6 +87,7 @@ function App() {
             )}
           </div>
         ))}
+        <h2>Total Hours: {getTotalHours(hours)}</h2>
       </div>
     </div>
   );

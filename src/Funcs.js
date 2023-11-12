@@ -79,4 +79,13 @@ const handleDelete = (setHours, hours, index) => {
   localStorage.setItem("hours", JSON.stringify(hours));
   setHours([...hours]);
 };
-export { handleClockIn, handleClockOut, handleDelete };
+const getTotalHours = (hours) => {
+  let total = 0;
+  for (let i = 0; i < hours.length; i++) {
+    if (hours[i].totalHours) {
+      total = total + +hours[i].totalHours[0];
+    }
+  }
+  return total;
+};
+export { handleClockIn, handleClockOut, handleDelete, getTotalHours };
